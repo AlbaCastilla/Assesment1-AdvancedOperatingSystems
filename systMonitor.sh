@@ -77,6 +77,28 @@ disk_and_logs() {
     fi
 }
 
+exit_syst() {
+    echo ""
+    read -p "Are you sure you want to exit the system? (Y/N): " confirm
+
+    case $confirm in
+        Y|y)
+            echo "Exiting University Data Centre System..."
+            log_action "System exited by user using exit command"
+            exit 0
+            ;;
+        N|n)
+            echo "Exit cancelled. Returning to menu."
+            log_action "User cancelled exit command"
+            ;;
+        *)
+            echo "Invalid input. Please enter Y or N."
+            log_action "Invalid exit confirmation input"
+            ;;
+    esac
+}
+
+
 
 
 log_action() {
@@ -97,7 +119,7 @@ while true; do
         2) see_top_processes;;
         3) terminate_process;;
         4) disk_and_logs;;
-        5) ;;
+        5) exit_syst;;
         *) echo "Invalid selection. Please try again." ;;
     esac
 done
