@@ -48,6 +48,35 @@ terminate_process() {
     fi
 }
 
+disk_and_logs() {
+    read -p "Enter directory to inspect: " dir
+
+    if [ ! -d "$dir" ]; then
+        echo "Directory does not exist."
+        return
+    fi
+
+    du -sh "$dir"
+    log_action "Inspected disk usage for $dir"
+
+    mkdir -p $ARCHIVE_DIR
+
+    large_logs=$(find "$dir" -type f -name "*.log" -size +50M)
+
+    for file in $large_logs; do
+        timestamp=$(date '+%Y%m%d_%H%M%S')
+        filename=$(basename "$file")
+        tar -czf "$ARCHIVE_DIR/${filename}_$timestamp.tar.gz" "$file"
+        log_action "Archived $file"
+    done
+
+    archive_size=$(du -sm $ARCHIVE_DIR | cut -f1)
+    if [ "$archive_size" -gt 1024 ]; then
+        echo "WARNING: ArchiveLogs exceeds 1GB"
+        log_action "ArchiveLogs exceeded 1GB warning"
+    fi
+}
+
 
 
 log_action() {
@@ -67,7 +96,7 @@ while true; do
         1) see_usage ;;
         2) see_top_processes;;
         3) terminate_process;;
-        4) ;;
+        4) disk_and_logs;;
         5) ;;
         *) echo "Invalid selection. Please try again." ;;
     esac
